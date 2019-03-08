@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/ctbew-mailinator-com/jx-tut-go:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/ctbew-mailinator-com/jx-tut-go:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: jx-tut-go
+        chartPath: charts/jx-tut-go
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/ctbew-mailinator-com/jx-tut-go'
+          image.tag: '{{.DIGEST_HEX}}'
